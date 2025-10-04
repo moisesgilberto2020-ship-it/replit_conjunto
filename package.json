@@ -1,0 +1,25 @@
+{
+  "name": "banco-fullstack",
+  "version": "1.0.0",
+  "description": "Aplicación completa Frontend + Backend para BDV",
+  "scripts": {
+    "dev": "npx concurrently --kill-others --prefix \"[{name}]\" --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,magenta\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd telegram-bot-api && npm run dev",
+    "dev:frontend": "cd \"Espiperlou BDV\" && npm run dev",
+    "start": "npx concurrently --kill-others --prefix \"[{name}]\" --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,magenta\" \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd telegram-bot-api && npm start",
+    "start:frontend": "cd \"Espiperlou BDV\" && npm start",
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "install:backend": "cd telegram-bot-api && npm install",
+    "install:frontend": "cd \"Espiperlou BDV\" && npm install",
+    "kill": "taskkill /f /im node.exe 2>nul || echo No hay procesos Node.js ejecutándose",
+    "clean": "npm run kill && npm run install:all",
+    "dev:safe": "node start-dev.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": ["telegram", "bot", "nextjs", "express", "banco"],
+  "author": "",
+  "license": "MIT"
+}

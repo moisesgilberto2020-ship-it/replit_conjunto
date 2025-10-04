@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+*, *::before, *::after {
+  box-sizing: content-box !important;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url("/background.png");
+  background-size: cover;
+  background-position: center;
+  color: #171717;
+}
+
+#__next {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex: 1;
+}
+
+.container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.left-side {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.right-side {
+  width: 50%;
+}
+
+.form {
+  width: 80%;
+  background: #ffffff;
+  max-width: 550px;
+  box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  position: relative;
+  margin: 20px;
+}
+
+.form-group label {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-55%);
+  color: #999999;
+  transition: top 0.3s, font-size 0.3s;
+  pointer-events: none;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  height: 60px;
+  border: 0;
+  border-bottom: 1px solid gray;
+  background: #ededed;
+  outline: none;
+}
+
+.form-group input:focus {
+  border: 0;
+}
+
+.form-group input:focus + label,
+.form-group input:not(:placeholder-shown) + label {
+  top: 5px;
+  font-size: 12px;
+}
+
+button {
+  background-color: #0067b1;
+  color: white;
+  border-radius: 3px;
+  border: 0;
+  padding: 15px;
+  width: 200px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
+
+.form-group2 {
+  position: relative;
+  margin: 20px;
+}
+
+.form-group2 label {
+  position: absolute;
+  top: 50%;
+  left: 23%;
+  transform: translateY(-55%);
+  color: #999999;
+  transition: top 0.3s, font-size 0.3s;
+  pointer-events: none;
+}
+
+.form-group2 input {
+  padding: 10px;
+  height: 60px;
+  border: 0;
+  border-bottom: 1px solid gray;
+  background: #ededed;
+  outline: none;
+  width: 100%;
+}
+
+.form-group2 input:focus {
+  border: 0;
+}
+
+.form-group2 input:focus + label,
+.form-group2 input:not(:placeholder-shown) + label {
+  top: 5px;
+  font-size: 12px;
+}
+
+.overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.content {
+  background-color: #ffffff;
+  width: 350px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  body {
+    background: #ededed;
+  }
+
+  .container {
+    flex-direction: column;
+  }
+
+  .left-side {
+    width: 100%;
+    height: 100vh;
+  }
+
+  .right-side {
+    display: none;
+  }
+}
