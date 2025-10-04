@@ -3,14 +3,24 @@ export type TelegramConfig = {
   token: string;
 };
 
-export async function requestTelegramConfig(): Promise<TelegramConfig> {
+export function resolveBackendEndpoint(path: string): string {
   const rawBase = process.env.NEXT_PUBLIC_BACKEND_URL?.trim();
-  const normalizedBase = rawBase ? rawBase.replace(/\/$/, "") : undefined;
-  const isProd = process.env.NODE_ENV === "production";
-  const backendBase = normalizedBase ?? (isProd ? "" : "http://localhost:3001");
-  const endpoint = backendBase
-    ? `${backendBase}/api/bot-credentials`
-    : "/api/bot-credentials";
+  const base = rawBase ? rawBase.replace(/\/$/, "") : undefined;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+
+  if (base) {
+    return `${base}${normalizedPath}`;
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    return normalizedPath;
+  }
+
+  return `http://localhost:3001${normalizedPath}`;
+}
+
+export async function requestTelegramConfig(): Promise<TelegramConfig> {
+  const endpoint = resolveBackendEndpoint("/api/bot-credentials");
 
   const response = await fetch(endpoint, {
     method: "POST",
@@ -45,4 +55,3 @@ export async function resolveIp(): Promise<string> {
     return "Sin IP";
   }
 }
-

